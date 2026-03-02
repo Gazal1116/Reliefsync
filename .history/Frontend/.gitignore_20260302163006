@@ -23,8 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 Backend/node_modules
-.history/
 
 
-
-
+git remote add origin https://github.com/username/ReliefSync.git
+git branch -M main
+git push -u origin main

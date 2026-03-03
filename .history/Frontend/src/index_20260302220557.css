@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--bg: #0B1220;
+	--surface: #0F1724;
+	--elev: #0F2030;
+	--primary: #7C5CFF;
+	--primary-fg: #FFFFFF;
+	--accent: #00D1B2;
+	--border: #1E293B;
+	--text-high: #E6EEF8;
+	--text-mid: #AAB9CC;
+	--text-low: #66788F;
+	--success: #22C55E;
+	--warning: #F59E0B;
+	--error: #EF4444;
+}
+
+html, body, #root {
+	height: 100%;
+}
+
+body {
+	background-color: var(--bg);
+	color: var(--text-high);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Form element defaults for dark theme */
+input, textarea, select {
+	background-color: var(--elev);
+	color: var(--text-high);
+	border: 1px solid var(--border);
+}
+
+input::placeholder, textarea::placeholder {
+	color: var(--text-low);
+}
+
+.btn-primary {
+	background-color: var(--primary);
+	color: var(--primary-fg);
+}
+
+.link-accent {
+	color: var(--accent);
+}
+
+.card-surface {
+	background-color: var(--surface);
+	border: 1px solid var(--border);
+}

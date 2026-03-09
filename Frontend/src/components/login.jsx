@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Mail, Lock, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
@@ -16,6 +16,9 @@ function Login() {
   };
 
   const navigate = useNavigate();
+
+  const inputBase =
+    "w-full pl-11 pr-4 py-3.5 rounded-xl bg-[#0d0d18] text-white border border-white/10 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/60 focus:border-purple-400/50 hover:border-white/20 transition-all duration-300";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,80 +43,53 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0b0b14] relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#050511] relative overflow-hidden p-4">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-sky-900/20" />
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-600/25 blur-[100px] rounded-full -translate-y-1/2" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/20 blur-[100px] rounded-full translate-y-1/2" />
 
-      {/* Background Glow */}
-      <div className="absolute w-[400px] h-[400px] bg-purple-700 opacity-20 blur-3xl rounded-full top-[-120px] left-[-120px]"></div>
-      <div className="absolute w-[400px] h-[400px] bg-blue-700 opacity-20 blur-3xl rounded-full bottom-[-120px] right-[-120px]"></div>
+      <div className="relative z-10 w-full max-w-md">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-6 transition-colors">
+          ← Back to home
+        </Link>
 
-      {/* Card */}
-      <div className="relative z-10 w-full max-w-sm p-10 rounded-3xl 
-                      bg-[#141423]/90 backdrop-blur-xl
-                      border border-white/10 shadow-2xl 
-                      transition-all duration-500 
-                      hover:-translate-y-2 
-                      hover:shadow-purple-500/30 
-                      hover:border-purple-500/50">
+        <div className="rounded-3xl bg-[#0a0a14]/80 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-purple-900/20 p-8 sm:p-10">
 
-        {/* Branding */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <ShieldCheck className="text-purple-400 w-7 h-7" />
-          <h1 className="text-xl font-semibold text-white tracking-wide">
-            ReliefSync
-          </h1>
-        </div>
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 border border-white/20 shadow-lg shadow-purple-500/30">
+              <ShieldCheck className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-semibold text-white tracking-wide">ReliefSync</span>
+          </div>
 
-        <h2 className="text-2xl font-semibold text-center text-white mb-2">
-          Welcome Back
-        </h2>
+          <h2 className="text-2xl font-semibold text-center text-white mb-1">Welcome back</h2>
+          <p className="text-gray-400 text-sm text-center mb-8">Sign in to continue helping</p>
 
-        <p className="text-gray-400 text-sm text-center mb-8">
-          Login to continue managing relief efforts
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-[#1b1b2d] text-white border border-gray-700 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 
-                       hover:border-blue-500 transition-all duration-300"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            onChange={handleChange}
-            className="w-full p-3 rounded-xl bg-[#1b1b2d] text-white border border-gray-700 
-                       focus:outline-none focus:ring-2 focus:ring-purple-500 
-                       hover:border-purple-500 transition-all duration-300"
-          />
-
-          <button
-            type="submit"
-            className="w-full py-3 rounded-xl font-medium text-white 
-                       bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 
-                       hover:scale-[1.02] hover:shadow-purple-500/40 
-                       transition-all duration-300 shadow-lg">
-            Login
-          </button>
-
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input type="email" name="email" placeholder="Email address" required onChange={handleChange} className={inputBase} />
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input type="password" name="password" placeholder="Password" required onChange={handleChange} className={inputBase} />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 shadow-lg shadow-purple-500/40 hover:shadow-purple-400/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+            >
+              Sign in
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
 
         <p className="text-gray-400 text-sm text-center mt-8">
           Don’t have an account?{" "}
-          <Link
-            to="/"
-            className="text-purple-400 hover:text-purple-300 transition"
-          >
-            Register
+          <Link to="/register" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+            Create account
           </Link>
         </p>
-
+        </div>
       </div>
     </div>
   );

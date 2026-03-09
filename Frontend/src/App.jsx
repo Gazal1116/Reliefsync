@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./components/home";
 import Register from "./components/register";
 import Login from "./components/login";
 import ReliefRequests from "./components/reliefrequest";
-
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Make Register the default page */}
-        <Route path="/" element={<Register />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/request" element={<ReliefRequests />} />
       </Routes>

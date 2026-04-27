@@ -1,5 +1,6 @@
 import { ShieldCheck, ArrowRight, HeartHandshake, MapPinned, Users, Waves } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function StatBadge({ label, value }) {
   return (
@@ -38,6 +39,26 @@ function SectionTitle({ eyebrow, title, subtitle, align = "left" }) {
 }
 
 function Home() {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("relief_user") || "null");
+      setCurrentUser(user);
+    } catch (error) {
+      setCurrentUser(null);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("relief_user");
+    localStorage.removeItem("relief_token");
+    localStorage.removeItem("userId");
+    setCurrentUser(null);
+  };
+
+  const dashboardPath = currentUser?.role === "volunteer" ? "/dashboard" : "/user-dashboard";
+
   return (
     <div className="min-h-screen bg-[#050511] text-white overflow-x-hidden">
       {/* Layered background with diagonal strip instead of blobs */}
@@ -77,25 +98,39 @@ function Home() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              to="/profile"
-              className="hidden sm:inline-flex px-4 py-2 text-xs sm:text-sm text-gray-200 hover:text-white border border-white/15 rounded-full hover:border-purple-400/50 hover:bg-white/5 transition-all duration-300"
-            >
-              Profile
-            </Link>
-            <Link
-              to="/login"
-              className="hidden sm:inline-flex px-4 py-2 text-xs sm:text-sm text-gray-200 hover:text-white border border-white/15 rounded-full hover:border-purple-400/50 hover:bg-white/5 transition-all duration-300"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="group hidden sm:inline-flex items-center gap-2 rounded-full text-xs sm:text-sm font-semibold px-5 py-2.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-sky-500 text-white shadow-lg shadow-purple-500/50 border border-white/20 hover:scale-105 hover:shadow-purple-400/60 hover:shadow-xl hover:-translate-y-0.5 active:scale-100 transition-all duration-300"
-            >
-              Register
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
+            {currentUser ? (
+              <>
+                <Link
+                  to={dashboardPath}
+                  className="hidden sm:inline-flex px-4 py-2 text-xs sm:text-sm text-gray-200 hover:text-white border border-white/15 rounded-full hover:border-purple-400/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="hidden sm:inline-flex items-center gap-2 rounded-full text-xs sm:text-sm font-semibold px-5 py-2.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-sky-500 text-white shadow-lg shadow-purple-500/50 border border-white/20 hover:scale-105 hover:shadow-purple-400/60 hover:shadow-xl hover:-translate-y-0.5 active:scale-100 transition-all duration-300"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="hidden sm:inline-flex px-4 py-2 text-xs sm:text-sm text-gray-200 hover:text-white border border-white/15 rounded-full hover:border-purple-400/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="group hidden sm:inline-flex items-center gap-2 rounded-full text-xs sm:text-sm font-semibold px-5 py-2.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-sky-500 text-white shadow-lg shadow-purple-500/50 border border-white/20 hover:scale-105 hover:shadow-purple-400/60 hover:shadow-xl hover:-translate-y-0.5 active:scale-100 transition-all duration-300"
+                >
+                  Register
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </Link>
+              </>
+            )}
             <Link
               to="/register"
               className="sm:hidden inline-flex items-center justify-center h-9 w-9 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 border border-white/20"

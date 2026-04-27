@@ -34,7 +34,7 @@ async function readJsonSafely(response) {
 }
 
 function StatusPill({ status }) {
-  const isCompleted = String(status || "").toLowerCase() === "completed";
+  const isCompleted = status === "Completed";
 
   return (
     <span
@@ -130,7 +130,7 @@ function RequestDetails() {
   }, [id, token]);
 
   const handleMarkCompleted = async () => {
-    if (!requestData || String(requestData.status).toLowerCase() === "completed" || !isVolunteer) return;
+    if (!requestData || requestData.status === "Completed" || !isVolunteer) return;
 
     setActionLoading(true);
     setError("");
@@ -140,10 +140,8 @@ function RequestDetails() {
       const response = await fetch(`http://localhost:5000/api/relief/update/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status: "completed" }),
       });
 
       const data = await readJsonSafely(response);
@@ -283,7 +281,7 @@ function RequestDetails() {
                       <button
                         type="button"
                         onClick={handleMarkCompleted}
-                        disabled={actionLoading || String(requestData?.status).toLowerCase() === "completed"}
+                        disabled={actionLoading || requestData?.status === "Completed"}
                         className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         Mark as Completed

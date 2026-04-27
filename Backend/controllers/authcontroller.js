@@ -19,6 +19,11 @@ const createToken = (user) =>
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    const selectedRole = role || "requester";
+
+    if (!["requester", "volunteer"].includes(selectedRole)) {
+      return res.status(400).json({ message: "Invalid role selected" });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -31,7 +36,7 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role
+      role: selectedRole
     });
 
     await user.save();
@@ -57,7 +62,7 @@ exports.registerUser = async (req, res) => {
 // LOGIN
 exports.loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     const user = await User.findOne({ email });
 
@@ -69,6 +74,10 @@ exports.loginUser = async (req, res) => {
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
+    }
+
+    if (role && user.role !== role) {
+      return res.status(400).json({ message: "Selected role does not match account role" });
     }
 
     const token = createToken(user);

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Clock3, MapPin, Trash2, BadgeAlert, ShieldCheck } from "lucide-react";
 
 function formatDate(value) {
@@ -34,7 +34,7 @@ async function readJsonSafely(response) {
 }
 
 function StatusPill({ status }) {
-  const isCompleted = String(status || "").toLowerCase() === "completed";
+  const isCompleted = status === "Completed";
 
   return (
     <span
@@ -68,16 +68,6 @@ function RequestDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("relief_token");
-  const userRole = (() => {
-    try {
-      const rawUser = localStorage.getItem("relief_user");
-      const user = rawUser ? JSON.parse(rawUser) : null;
-      return (user?.role || "").toLowerCase();
-    } catch {
-      return "";
-    }
-  })();
-  const isVolunteer = userRole === "volunteer";
   const dashboardPath = (() => {
     try {
       const rawUser = localStorage.getItem("relief_user");
@@ -93,6 +83,11 @@ function RequestDetails() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const badgeTone = useMemo(() => {
+    if (requestData?.status === "Completed") return "completed";
+    return "pending";
+  }, [requestData?.status]);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -130,7 +125,7 @@ function RequestDetails() {
   }, [id, token]);
 
   const handleMarkCompleted = async () => {
-    if (!requestData || String(requestData.status).toLowerCase() === "completed" || !isVolunteer) return;
+    if (!requestData || requestData.status === "Completed") return;
 
     setActionLoading(true);
     setError("");
@@ -140,10 +135,8 @@ function RequestDetails() {
       const response = await fetch(`http://localhost:5000/api/relief/update/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status: "completed" }),
       });
 
       const data = await readJsonSafely(response);
@@ -279,20 +272,14 @@ function RequestDetails() {
                 <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 sm:p-7">
                   <p className="text-xs uppercase tracking-[0.28em] text-sky-200/80">Actions</p>
                   <div className="mt-4 space-y-3">
-                    {isVolunteer ? (
-                      <button
-                        type="button"
-                        onClick={handleMarkCompleted}
-                        disabled={actionLoading || String(requestData?.status).toLowerCase() === "completed"}
-                        className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        Mark as Completed
-                      </button>
-                    ) : (
-                      <div className="w-full rounded-2xl border border-sky-400/20 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
-                        Only volunteer accounts can mark requests as completed.
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={handleMarkCompleted}
+                      disabled={actionLoading || requestData?.status === "Completed"}
+                      className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Mark as Completed
+                    </button>
 
                     <button
                       type="button"
@@ -308,7 +295,7 @@ function RequestDetails() {
 
                     <button
                       type="button"
-                      onClick={() => navigate(dashboardPath)}
+                      onClick={() => navigate("/dashboard")}
                       className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold text-gray-200 transition-all hover:bg-white/10 hover:border-purple-400/30"
                     >
                       Back

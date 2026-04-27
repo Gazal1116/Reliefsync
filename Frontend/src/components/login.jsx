@@ -5,7 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
+    role: "requester"
   });
 
   const handleChange = (e) => {
@@ -38,7 +39,8 @@ function Login() {
       if (data.user?.id) {
         localStorage.setItem('userId', data.user.id);
       }
-      navigate('/dashboard', { replace: true });
+      const roleToUse = data.user?.role || formData.role;
+      navigate(roleToUse === "volunteer" ? "/dashboard" : "/user-dashboard", { replace: true });
     } catch (err) {
       alert(err.message || 'Network error');
     }
@@ -65,9 +67,22 @@ function Login() {
           </div>
 
           <h2 className="text-2xl font-semibold text-center text-white mb-1">Welcome back</h2>
-          <p className="text-gray-400 text-sm text-center mb-8">Sign in to continue helping</p>
+          <p className="text-gray-400 text-sm text-center mb-8">Sign in with your role</p>
 
           <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Select role</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full p-3.5 rounded-xl bg-[#0d0d18] text-white border border-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/60 focus:border-purple-400/50"
+              >
+                <option value="requester">Request Help (User)</option>
+                <option value="volunteer">Volunteer</option>
+              </select>
+            </div>
+
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input type="email" name="email" placeholder="Email address" required autoComplete="off" onChange={handleChange} className={inputBase} />

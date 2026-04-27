@@ -1,22 +1,17 @@
 const ReliefRequest = require("../models/reliefrequestmodel");
-const mongoose = require("mongoose");
 
 // CREATE RELIEF REQUEST
 exports.createRelief = async (req, res) => {
   try {
-    const { title, description, location, priority, createdBy } = req.body;
-
-    if (!title || !location) {
-      return res.status(400).json({ message: "Title and location are required" });
-    }
+    const { title, description, location, priority } = req.body;
 
     const relief = new ReliefRequest({
       title,
       description: description || "",
       location,
       priority,
-      status: "pending",
-      createdBy: req.user?.userId || createdBy,
+      status: "Pending",
+      createdBy: req.user?.userId,
     });
 
     await relief.save();
@@ -31,33 +26,10 @@ exports.createRelief = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
-
-// GET RELIEF REQUESTS BY USER ID
-exports.getReliefsByUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const authUserId = req.user?.userId ? String(req.user.userId) : "";
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-
-    if (authUserId && authUserId !== userId && req.user?.role !== "admin") {
-      return res.status(403).json({ message: "Unauthorized access" });
-    }
-
-    const reliefs = await ReliefRequest.find({ createdBy: userId }).sort({ createdAt: -1 });
-
-    res.status(200).json(reliefs);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
-};
-
 // GET ALL RELIEF REQUESTS
 exports.getAllReliefs = async (req, res) => {
   try {
-    const reliefs = await ReliefRequest.find().sort({ createdAt: -1 });
+    const reliefs = await ReliefRequest.find();
 
     res.json(reliefs);
 
@@ -84,12 +56,6 @@ exports.getReliefById = async (req, res) => {
 // UPDATE RELIEF REQUEST STATUS TO COMPLETED
 exports.updateReliefStatus = async (req, res) => {
   try {
-    const normalizedStatus = String(req.body?.status || "completed").toLowerCase();
-
-    if (normalizedStatus !== "completed") {
-      return res.status(400).json({ message: "Only status 'completed' is allowed" });
-    }
-
     const relief = await ReliefRequest.findById(req.params.id);
 
     if (!relief) {
@@ -99,19 +65,14 @@ exports.updateReliefStatus = async (req, res) => {
     const actorRole = (req.user?.role || "").toLowerCase();
     const actorId = req.user?.userId ? String(req.user.userId) : "";
 
-    if (actorRole !== "volunteer") {
-      return res.status(403).json({ message: "Only volunteers can mark requests as completed" });
-    }
-
     if (actorRole === "volunteer" && actorId) {
       if (relief.assignedTo && String(relief.assignedTo) !== actorId) {
         return res.status(403).json({ message: "This request is already assigned to another volunteer" });
       }
       relief.assignedTo = actorId;
-      relief.completedBy = actorId;
     }
 
-    relief.status = "completed";
+    relief.status = "Completed";
     const updatedRelief = await relief.save();
 
     res.status(200).json({

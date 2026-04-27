@@ -6,7 +6,8 @@ function Register() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
+    role: "requester"
   });
 
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ function Register() {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, role: "volunteer" })
+        body: JSON.stringify(formData)
       });
       const data = await res.json();
       if (!res.ok) {
@@ -33,7 +34,8 @@ function Register() {
       if (data.user?.id) {
         localStorage.setItem('userId', data.user.id);
       }
-      navigate("/dashboard", { replace: true });
+      const roleToUse = data.user?.role || formData.role;
+      navigate(roleToUse === "volunteer" ? "/dashboard" : "/user-dashboard", { replace: true });
     } catch (error) {
       alert("Network error");
       console.log(error);
@@ -69,10 +71,23 @@ function Register() {
             Create account
           </h2>
           <p className="text-gray-400 text-sm text-center mb-8">
-            Join as a volunteer and start helping
+            Choose your role and continue
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Select role</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full p-3.5 rounded-xl bg-[#0d0d18] text-white border border-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/60 focus:border-purple-400/50"
+              >
+                <option value="requester">Request Help (User)</option>
+                <option value="volunteer">Volunteer</option>
+              </select>
+            </div>
+
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input

@@ -5,7 +5,7 @@ import Login from "./components/login";
 import ReliefRequests from "./components/reliefrequest";
 import Profile from "./components/profile";
 import RequestDetails from "./components/requestdetails";
-import RequesterDashboard from "./components/RequesterDashboard";
+import UserDashboard from "./components/userdashboard";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
           path="/user-dashboard"
           element={
             <RoleProtectedRoute allowedRoles={["requester"]}>
-              <RequesterDashboard />
+              <UserDashboard />
             </RoleProtectedRoute>
           }
         />

@@ -20,8 +20,8 @@ const reliefRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "completed"],
-    default: "pending"
+    enum: ["Pending", "Completed"],
+    default: "Pending"
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -29,12 +29,6 @@ const reliefRequestSchema = new mongoose.Schema({
     required: false
   },
   assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: false,
-    default: null
-  },
-  completedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: false,

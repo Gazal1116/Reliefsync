@@ -20,8 +20,8 @@ const reliefRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "completed"],
-    default: "pending"
+    enum: ["Pending", "Completed"],
+    default: "Pending"
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

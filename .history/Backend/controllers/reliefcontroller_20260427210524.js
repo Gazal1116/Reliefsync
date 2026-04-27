@@ -1,5 +1,4 @@
 const ReliefRequest = require("../models/reliefrequestmodel");
-const mongoose = require("mongoose");
 
 // CREATE RELIEF REQUEST
 exports.createRelief = async (req, res) => {
@@ -36,16 +35,6 @@ exports.createRelief = async (req, res) => {
 exports.getReliefsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
-    const authUserId = req.user?.userId ? String(req.user.userId) : "";
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-
-    if (authUserId && authUserId !== userId && req.user?.role !== "admin") {
-      return res.status(403).json({ message: "Unauthorized access" });
-    }
-
     const reliefs = await ReliefRequest.find({ createdBy: userId }).sort({ createdAt: -1 });
 
     res.status(200).json(reliefs);

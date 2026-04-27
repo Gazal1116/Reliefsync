@@ -30,9 +30,6 @@ function Register() {
       }
       localStorage.setItem('relief_token', data.token || '');
       localStorage.setItem('relief_user', JSON.stringify(data.user || {}));
-      if (data.user?.id) {
-        localStorage.setItem('userId', data.user.id);
-      }
       navigate("/dashboard", { replace: true });
     } catch (error) {
       alert("Network error");

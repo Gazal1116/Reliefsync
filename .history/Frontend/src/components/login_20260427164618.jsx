@@ -35,9 +35,6 @@ function Login() {
       }
       localStorage.setItem('relief_token', data.token || '');
       localStorage.setItem('relief_user', JSON.stringify(data.user || {}));
-      if (data.user?.id) {
-        localStorage.setItem('userId', data.user.id);
-      }
       navigate('/dashboard', { replace: true });
     } catch (err) {
       alert(err.message || 'Network error');

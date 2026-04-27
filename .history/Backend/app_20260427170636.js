@@ -5,9 +5,9 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 
 const { registerUser, loginUser } = require("./controllers/authcontroller");
+const { createRelief, getAllReliefs , deleteRelief } = require("./controllers/reliefcontroller");
 const requireAuth = require("./middleware/authmiddleware");
 const User = require("./models/usermodel");
-const reliefRoutes = require("./routes/reliefRoutes");
 
 
 const app = express();
@@ -77,7 +77,9 @@ app.patch("/api/user/profile/:id", requireAuth, async (req, res) => {
   }
 });
 
-app.use("/api/relief", reliefRoutes);
+app.post("/api/relief/create", requireAuth, createRelief);
+app.get("/api/relief/all", requireAuth, getAllReliefs);
+app.delete("/api/relief/delete/:id", requireAuth, deleteRelief);
 
 const PORT = 5000;
 

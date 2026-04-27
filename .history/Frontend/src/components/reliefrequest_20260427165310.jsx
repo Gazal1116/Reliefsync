@@ -5,38 +5,8 @@ import { ShieldCheck, MapPin, Plus, Activity } from "lucide-react";
 
 const ReliefRequests = () => {
   const [requests, setRequests] = useState([]);
-  const [requestsLoading, setRequestsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [createError, setCreateError] = useState("");
-  const [createSuccess, setCreateSuccess] = useState("");
   const token = localStorage.getItem("relief_token");
-  const userId = localStorage.getItem("userId");
-
-  let userData = {};
-  try {
-    userData = JSON.parse(localStorage.getItem("relief_user") || "{}");
-  } catch {
-    userData = {};
-  }
-
-  const userRole = (userData.role || "").toLowerCase();
-  const isVolunteer = userRole === "volunteer";
-
-  const getUserIdFromToken = () => {
-    try {
-      if (!token) return "";
-      const payload = token.split(".")[1];
-      if (!payload) return "";
-
-      const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-      const decodedPayload = JSON.parse(atob(normalized));
-      return decodedPayload.userId || "";
-    } catch {
-      return "";
-    }
-  };
-
-  const activeUserId = userId || userData.id || getUserIdFromToken();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -46,7 +16,6 @@ const ReliefRequests = () => {
   });
 
   const fetchRequests = async () => {
-    setRequestsLoading(true);
     try {
       const res = await axios.get("http://localhost:5000/api/relief/all", {
         headers: {
@@ -56,8 +25,6 @@ const ReliefRequests = () => {
       setRequests(res.data);
     } catch (err) {
       console.log(err);
-    } finally {
-      setRequestsLoading(false);
     }
   };
 
@@ -75,8 +42,6 @@ const ReliefRequests = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setCreateError("");
-      setCreateSuccess("");
       await axios.post(
         "http://localhost:5000/api/relief/create",
         formData,
@@ -95,15 +60,9 @@ const ReliefRequests = () => {
       });
 
       fetchRequests();
-      setCreateSuccess("Request created successfully.");
       setShowModal(false);
     } catch (err) {
-      setCreateError(
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Failed to create request"
-      );
+      console.log(err);
     }
   };
 
@@ -113,56 +72,11 @@ const ReliefRequests = () => {
 
   const total = requests.length;
   const pending = requests.filter(
-    (r) => String(r.status).toLowerCase() === "pending"
+    (r) => r.status === "Pending"
   ).length;
   const completed = requests.filter(
-    (r) => String(r.status).toLowerCase() === "completed"
+    (r) => r.status === "Completed"
   ).length;
-
-  const isOwnedByVolunteer = (item) => {
-    if (!activeUserId) return false;
-
-    const createdBy = item?.createdBy;
-    const assignedTo = item?.assignedTo;
-
-    const matchesId = (value) => {
-      if (!value) return false;
-      if (typeof value === "string") return value === activeUserId;
-      if (typeof value === "object") {
-        if (value._id) return String(value._id) === activeUserId;
-        if (value.id) return String(value.id) === activeUserId;
-      }
-      return false;
-    };
-
-    return matchesId(createdBy) || matchesId(assignedTo);
-  };
-
-  const volunteerRequests = requests.filter(isOwnedByVolunteer);
-
-  // Legacy requests may not have createdBy/assignedTo populated yet.
-  // In that case, show analytics from available request data instead of zeros.
-  const analyticsRequests =
-    isVolunteer && volunteerRequests.length === 0 && requests.length > 0
-      ? requests
-      : volunteerRequests;
-
-  const volunteerTotal = analyticsRequests.length;
-  const volunteerCompleted = analyticsRequests.filter(
-    (r) => String(r.status).toLowerCase() === "completed"
-  ).length;
-  const volunteerPending = analyticsRequests.filter(
-    (r) => String(r.status).toLowerCase() === "pending"
-  ).length;
-  const volunteerEfficiency =
-    volunteerTotal === 0 ? 0 : Math.round((volunteerCompleted / volunteerTotal) * 100);
-
-  const usingLegacyFallback =
-    isVolunteer && volunteerRequests.length === 0 && requests.length > 0;
-
-  const maxVolunteerValue = Math.max(volunteerCompleted, volunteerPending, 1);
-  const completedHeight = Math.round((volunteerCompleted / maxVolunteerValue) * 100);
-  const pendingHeight = Math.round((volunteerPending / maxVolunteerValue) * 100);
 
   return (
     <div className="flex min-h-screen bg-[#050511] text-white">
@@ -199,21 +113,7 @@ const ReliefRequests = () => {
             Profile
           </Link>
 
-          {isVolunteer ? (
-            <div className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-4">
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <h4 className="text-sm font-semibold text-emerald-300">Volunteer Analytics</h4>
-                <span className="rounded-full border border-emerald-400/30 bg-emerald-500/15 px-2 py-1 text-xs text-emerald-200">
-                  Efficiency: {volunteerEfficiency}%
-                </span>
-              </div>
-              <div className="space-y-2 text-xs text-gray-200">
-                <p>Total Requests Handled: <span className="text-white font-semibold">{volunteerTotal}</span></p>
-                <p>Completed Requests: <span className="text-emerald-300 font-semibold">{volunteerCompleted}</span></p>
-                <p>Pending Requests: <span className="text-amber-300 font-semibold">{volunteerPending}</span></p>
-              </div>
-            </div>
-          ) : (
+          <button
             <button
               onClick={() => setShowModal(true)}
               className="w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 hover:shadow-purple-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
@@ -221,7 +121,6 @@ const ReliefRequests = () => {
               <Plus className="w-4 h-4" />
               Create Request
             </button>
-          )}
         </div>
       </div>
 
@@ -266,27 +165,22 @@ const ReliefRequests = () => {
             ) : (
               <div className="space-y-3">
                 {requests.map((req) => (
-                  <Link
+                  <div
                     key={req._id}
-                    to={`/request/${req._id}`}
-                    className="block p-4 rounded-xl bg-[#0d0d18] border border-white/10 hover:border-purple-500/30 hover:-translate-y-0.5 transition-all duration-300"
+                    className="p-4 rounded-xl bg-[#0d0d18] border border-white/10 hover:border-purple-500/30 transition-all duration-300"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h4 className="font-semibold text-white">{req.title}</h4>
-                        <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
-                          <MapPin className="w-3.5 h-3.5" />
-                          {req.location}
-                        </p>
-                      </div>
-                      <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${req.status === "Completed" ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"}`}>
-                        {req.status}
-                      </span>
-                    </div>
-                    <p className="text-sm mt-3 text-gray-300">
-                      Priority: <span className="text-purple-300">{req.priority}</span>
+                    <h4 className="font-semibold">{req.title}</h4>
+                    <p className="text-sm text-gray-400 flex items-center gap-1 mt-1">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {req.location}
                     </p>
-                  </Link>
+                    <p className="text-sm mt-2">
+                      Priority: <span className="text-purple-400">{req.priority}</span>
+                    </p>
+                    <p className="text-sm">
+                      Status: <span className={req.status === "Completed" ? "text-emerald-400" : "text-amber-400"}>{req.status}</span>
+                    </p>
+                  </div>
                 ))}
               </div>
             )}
@@ -345,67 +239,6 @@ const ReliefRequests = () => {
               </p>
             </div>
 
-            {isVolunteer && (
-              <div className="bg-[#0a0a14] border border-white/10 p-6 rounded-2xl">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Volunteer Analytics</h3>
-                  <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
-                    Efficiency: {volunteerEfficiency}%
-                  </span>
-                </div>
-
-                {usingLegacyFallback && (
-                  <p className="mb-3 text-xs text-sky-300">
-                    Using overall requests because older records are missing volunteer assignment fields.
-                  </p>
-                )}
-
-                <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-gray-400 text-xs">Handled</p>
-                    <p className="text-xl font-semibold">{volunteerTotal}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-gray-400 text-xs">Completed</p>
-                    <p className="text-xl font-semibold text-emerald-300">{volunteerCompleted}</p>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 col-span-2">
-                    <p className="text-gray-400 text-xs">Pending</p>
-                    <p className="text-xl font-semibold text-amber-300">{volunteerPending}</p>
-                  </div>
-                </div>
-
-                {requestsLoading ? (
-                  <div className="h-56 rounded-xl border border-white/10 bg-white/5 animate-pulse" />
-                ) : (
-                  <div className="h-56 rounded-xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs text-slate-300 mb-3">Volunteer Request Insights</p>
-                    <div className="h-[calc(100%-28px)] flex items-end justify-around gap-4">
-                      <div className="flex flex-col items-center gap-2 w-1/2">
-                        <div className="w-full max-w-[90px] h-36 bg-[#0d0d18] border border-white/10 rounded-lg flex items-end overflow-hidden">
-                          <div
-                            className="w-full bg-emerald-500/80 transition-all duration-500"
-                            style={{ height: `${completedHeight}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-emerald-300">Completed ({volunteerCompleted})</p>
-                      </div>
-
-                      <div className="flex flex-col items-center gap-2 w-1/2">
-                        <div className="w-full max-w-[90px] h-36 bg-[#0d0d18] border border-white/10 rounded-lg flex items-end overflow-hidden">
-                          <div
-                            className="w-full bg-amber-500/80 transition-all duration-500"
-                            style={{ height: `${pendingHeight}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-amber-300">Pending ({volunteerPending})</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
           </div>
         </div>
       </div>
@@ -423,18 +256,6 @@ const ReliefRequests = () => {
             </button>
 
             <h3 className="text-xl font-semibold mb-6">Add New Request</h3>
-
-            {createError && (
-              <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                {createError}
-              </div>
-            )}
-
-            {createSuccess && (
-              <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-                {createSuccess}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <input

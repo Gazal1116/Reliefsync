@@ -7,11 +7,10 @@ exports.createRelief = async (req, res) => {
 
     const relief = new ReliefRequest({
       title,
-      description: description || "",
+      description,
       location,
       priority,
-      status: "Pending",
-      createdBy: req.user?.userId,
+      status: "Pending"
     });
 
     await relief.save();
@@ -22,9 +21,9 @@ exports.createRelief = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("CREATE ERROR:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
-  }
+  console.log("CREATE ERROR:", error);  
+  res.status(500).json({ message: "Server Error", error });
+}
 };
 // GET ALL RELIEF REQUESTS
 exports.getAllReliefs = async (req, res) => {

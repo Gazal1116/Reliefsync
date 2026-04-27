@@ -2,8 +2,6 @@ const User = require("../models/usermodel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "reliefsync-dev-secret";
-
 const createToken = (user) =>
   jwt.sign(
     {
@@ -11,7 +9,7 @@ const createToken = (user) =>
       email: user.email,
       role: user.role,
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 
@@ -42,7 +40,6 @@ exports.registerUser = async (req, res) => {
       message: "User Registered Successfully",
       token,
       user: {
-        id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -84,6 +81,21 @@ exports.loginUser = async (req, res) => {
       }
     });
 
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// PROFILE
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }

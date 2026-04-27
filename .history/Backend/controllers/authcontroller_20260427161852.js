@@ -2,8 +2,6 @@ const User = require("../models/usermodel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "reliefsync-dev-secret";
-
 const createToken = (user) =>
   jwt.sign(
     {
@@ -11,7 +9,7 @@ const createToken = (user) =>
       email: user.email,
       role: user.role,
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 
@@ -42,7 +40,6 @@ exports.registerUser = async (req, res) => {
       message: "User Registered Successfully",
       token,
       user: {
-        id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,

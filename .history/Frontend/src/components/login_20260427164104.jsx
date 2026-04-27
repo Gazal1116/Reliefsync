@@ -35,10 +35,8 @@ function Login() {
       }
       localStorage.setItem('relief_token', data.token || '');
       localStorage.setItem('relief_user', JSON.stringify(data.user || {}));
-      if (data.user?.id) {
-        localStorage.setItem('userId', data.user.id);
-      }
-      navigate('/dashboard', { replace: true });
+      alert(data.message || 'Login successful');
+      navigate('/dashboard');
     } catch (err) {
       alert(err.message || 'Network error');
     }
@@ -67,14 +65,14 @@ function Login() {
           <h2 className="text-2xl font-semibold text-center text-white mb-1">Welcome back</h2>
           <p className="text-gray-400 text-sm text-center mb-8">Sign in to continue helping</p>
 
-          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input type="email" name="email" placeholder="Email address" required autoComplete="off" onChange={handleChange} className={inputBase} />
+              <input type="email" name="email" placeholder="Email address" required onChange={handleChange} className={inputBase} />
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input type="password" name="password" placeholder="Password" required autoComplete="off" onChange={handleChange} className={inputBase} />
+              <input type="password" name="password" placeholder="Password" required onChange={handleChange} className={inputBase} />
             </div>
             <button
               type="submit"

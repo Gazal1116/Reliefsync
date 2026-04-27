@@ -30,10 +30,8 @@ function Register() {
       }
       localStorage.setItem('relief_token', data.token || '');
       localStorage.setItem('relief_user', JSON.stringify(data.user || {}));
-      if (data.user?.id) {
-        localStorage.setItem('userId', data.user.id);
-      }
-      navigate("/dashboard", { replace: true });
+      alert(data.message || "Registered successfully");
+      navigate("/dashboard");
     } catch (error) {
       alert("Network error");
       console.log(error);
@@ -72,7 +70,7 @@ function Register() {
             Join as a volunteer and start helping
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
@@ -80,7 +78,6 @@ function Register() {
                 name="name"
                 placeholder="Full name"
                 required
-                autoComplete="off"
                 onChange={handleChange}
                 className={inputBase}
               />
@@ -92,7 +89,6 @@ function Register() {
                 name="email"
                 placeholder="Email address"
                 required
-                autoComplete="off"
                 onChange={handleChange}
                 className={inputBase}
               />
@@ -104,7 +100,6 @@ function Register() {
                 name="password"
                 placeholder="Password"
                 required
-                autoComplete="new-password"
                 onChange={handleChange}
                 className={inputBase}
               />

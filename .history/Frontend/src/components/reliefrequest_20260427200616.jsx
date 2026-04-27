@@ -21,22 +21,7 @@ const ReliefRequests = () => {
 
   const userRole = (userData.role || "").toLowerCase();
   const isVolunteer = userRole === "volunteer";
-
-  const getUserIdFromToken = () => {
-    try {
-      if (!token) return "";
-      const payload = token.split(".")[1];
-      if (!payload) return "";
-
-      const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-      const decodedPayload = JSON.parse(atob(normalized));
-      return decodedPayload.userId || "";
-    } catch {
-      return "";
-    }
-  };
-
-  const activeUserId = userId || userData.id || getUserIdFromToken();
+  const activeUserId = userId || userData.id || "";
 
   const [formData, setFormData] = useState({
     title: "",
@@ -139,26 +124,15 @@ const ReliefRequests = () => {
   };
 
   const volunteerRequests = requests.filter(isOwnedByVolunteer);
-
-  // Legacy requests may not have createdBy/assignedTo populated yet.
-  // In that case, show analytics from available request data instead of zeros.
-  const analyticsRequests =
-    isVolunteer && volunteerRequests.length === 0 && requests.length > 0
-      ? requests
-      : volunteerRequests;
-
-  const volunteerTotal = analyticsRequests.length;
-  const volunteerCompleted = analyticsRequests.filter(
+  const volunteerTotal = volunteerRequests.length;
+  const volunteerCompleted = volunteerRequests.filter(
     (r) => String(r.status).toLowerCase() === "completed"
   ).length;
-  const volunteerPending = analyticsRequests.filter(
+  const volunteerPending = volunteerRequests.filter(
     (r) => String(r.status).toLowerCase() === "pending"
   ).length;
   const volunteerEfficiency =
     volunteerTotal === 0 ? 0 : Math.round((volunteerCompleted / volunteerTotal) * 100);
-
-  const usingLegacyFallback =
-    isVolunteer && volunteerRequests.length === 0 && requests.length > 0;
 
   const maxVolunteerValue = Math.max(volunteerCompleted, volunteerPending, 1);
   const completedHeight = Math.round((volunteerCompleted / maxVolunteerValue) * 100);
@@ -353,12 +327,6 @@ const ReliefRequests = () => {
                     Efficiency: {volunteerEfficiency}%
                   </span>
                 </div>
-
-                {usingLegacyFallback && (
-                  <p className="mb-3 text-xs text-sky-300">
-                    Using overall requests because older records are missing volunteer assignment fields.
-                  </p>
-                )}
 
                 <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3">

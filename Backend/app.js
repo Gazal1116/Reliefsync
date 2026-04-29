@@ -1,19 +1,33 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const passport = require("passport");
+const session = require("express-session");
 
-const { registerUser, loginUser } = require("./controllers/authcontroller");
+require("./passport");
+
+const authRoutes = require("./routes/authRoutes");
+const reliefRoutes = require("./routes/reliefRoutes");
 const requireAuth = require("./middleware/authmiddleware");
 const User = require("./models/usermodel");
-const reliefRoutes = require("./routes/reliefRoutes");
-
 
 const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "reliefsync-session-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Connect MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
@@ -25,8 +39,7 @@ app.get("/", (req, res) => {
   res.send("Backend + DB Connected ");
 });
 
-app.post("/api/auth/register", registerUser);
-app.post("/api/auth/login", loginUser);
+app.use("/api/auth", authRoutes);
 
 app.get("/api/user/profile/:id", requireAuth, async (req, res) => {
   try {
